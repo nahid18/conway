@@ -199,7 +199,7 @@ export default function GamePage() {
                                 row.map((cell, j) =>
                                     <div
                                         key={`${i}-${j}`}
-                                        className="cell cursor-pointer transition ease-in-out transform motion-reduce:transition-none motion-reduce:hover:transform-none duration-300"
+                                        className="cell cursor-pointer transition ease-in-out transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:transform-none duration-300"
                                         style={{
                                             width: `${childSize}px`,
                                             height: `${childSize}px`,
