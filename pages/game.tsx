@@ -243,7 +243,6 @@ export default function GamePage() {
                                 onValueChange={(value) => {
                                     handleClearClick();
                                     setGapSize(parseInt(value));
-                                    handleChildSize();
                                 }}
                             >
                                 <SelectTrigger className="w-[180px]">

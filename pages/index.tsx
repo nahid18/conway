@@ -16,7 +16,7 @@ export default function IndexPage() {
             The Game of Life, also known simply as Life, where one interacts with the Game of Life by creating an initial configuration and observing how it evolves.
           </p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
           <Link
             href={'/game'}
             className={buttonVariants({ size: "lg" })}
