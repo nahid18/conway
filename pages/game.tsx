@@ -44,7 +44,7 @@ export default function GamePage() {
 
 
     const { observe } = useDimensions<HTMLDivElement>({
-        onResize: ({ observe, unobserve, width, height, entry }) => {
+        onResize: ({ observe, unobserve, width, height }) => {
             setParentWidth(width);
             setParentHeight(height);
             handleChildSize();
@@ -170,7 +170,7 @@ export default function GamePage() {
                 </div>
                 <div className="flex flex-col gap-2">
                     <h4 className="text-xl font-semibold tracking-tight">
-                        Generation <span className="text-pink-700 dark:text-pink-500"> {generation}</span>
+                        Generation <span className="text-pink-700 dark:text-pink-500">{generation}</span>
                     </h4>
                     <div className="flex gap-2">
                         <Button variant="default" onClick={handleRunClick}>
@@ -183,22 +183,24 @@ export default function GamePage() {
                 </div>
                 <div
                     ref={observe}
-                    className="h-[500px] max-w-[90vw] flex items-center justify-center px-2 py-2 lg:p-6 bg-pink-900"
+                    className="h-[45vh] md:h-[50vh] max-w-[90vw] flex items-center justify-center p-2 md:p-6
+                     bg-pink-900"
                 >
                     {board && (
                         <div
                             style={{
                                 display: 'grid',
                                 gridGap: `${gapSize}px`,
-                                gridTemplateColumns: `repeat(${board[0].length}, 1fr)`,
-                                gridTemplateRows: `repeat(${board.length}, 1fr)`,
+                                gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+                                gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+                                transition: 'all 0.3s ease-in',
                             }}
                         >
                             {board.map((row, i) =>
                                 row.map((cell, j) =>
                                     <div
                                         key={`${i}-${j}`}
-                                        className="cell transition ease-in-out transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:transform-none duration-300"
+                                        className="cell cursor-pointer transition ease-in-out transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:transform-none duration-300"
                                         style={{
                                             width: `${childSize}px`,
                                             height: `${childSize}px`,
@@ -224,7 +226,6 @@ export default function GamePage() {
                             <Select
                                 value={shape}
                                 onValueChange={(value) => {
-                                    handleClearClick();
                                     setRows(value === 'square' ? SQUARE_ROWS : RECT_ROWS);
                                     setCols(value === 'square' ? SQUARE_COLS : RECT_COLS);
                                     setShape(value as BoardShape);
@@ -252,7 +253,6 @@ export default function GamePage() {
                             <Select
                                 value={gapSize.toString()}
                                 onValueChange={(value) => {
-                                    handleClearClick();
                                     setGapSize(parseInt(value));
                                 }}
                             >
