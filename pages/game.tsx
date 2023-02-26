@@ -22,7 +22,7 @@ export default function GamePage() {
     const SQUARE_COLS = 20;
     const RECT_ROWS = 15;
     const RECT_COLS = 20;
-    const GAP_OPTIONS = Array.from({ length: 4 }, (_, i) => i + 2);
+    const GAP_OPTIONS = Array.from({ length: 3 }, (_, i) => i + 1);
     const SHAPE_OPTIONS = ["square", "rectangle"] as BoardShape[];
 
     const [gapSize, setGapSize] = useState(2);
