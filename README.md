@@ -4,7 +4,7 @@ A NextJS, Typescript, Radix-UI, and TailwindCSS implementation of Conway Game of
 
 ## Features
 
-- Randomly initialize cells
+- Randomly Initialize Cells
 - Select Board Shape
 - Select Gap Size
 - Toggle Cells
