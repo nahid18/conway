@@ -5,7 +5,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import useDimensions from "react-cool-dimensions";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Layout } from "@/components/layout";
@@ -17,34 +18,73 @@ type BoardShape = "square" | "rectangle";
 
 export default function GamePage() {
 
-    const cellSize = 20;
-    const width = 400;
-    const height = 400;
+    const SQUARE_ROWS = 20;
+    const SQUARE_COLS = 20;
+    const RECT_ROWS = 15;
+    const RECT_COLS = 20;
+    const GAP_OPTIONS = Array.from({ length: 4 }, (_, i) => i + 2);
+    const SHAPE_OPTIONS = ["square", "rectangle"] as BoardShape[];
 
-    const gapOptions = Array.from(Array(6).keys()).map((i) => i + 2);
-    const [gap, setGap] = useState(4);
+    const [gapSize, setGapSize] = useState(2);
+    const [rows, setRows] = useState(SQUARE_ROWS);
+    const [cols, setCols] = useState(SQUARE_COLS);
+
+    const [shape, setShape] = useState<BoardShape>(SHAPE_OPTIONS[0] as BoardShape);
+    const [parentWidth, setParentWidth] = useState(0);
+    const [parentHeight, setParentHeight] = useState(0);
+
+
+    const [childSize, setChildSize] = useState(0);
+    const [board, setBoard] = useState<Grid>();
+    const [isRunning, setIsRunning] = useState(false);
+    const [generation, setGeneration] = useState(0);
+
+    const runningRef = useRef(isRunning);
+    runningRef.current = isRunning;
+
+
+    const { observe } = useDimensions<HTMLDivElement>({
+        onResize: ({ observe, unobserve, width, height, entry }) => {
+            setParentWidth(width);
+            setParentHeight(height);
+            handleChildSize();
+            unobserve();
+            observe();
+        },
+    });
 
     const generateRandomBoard = () => {
-        const rows = width / cellSize;
-        const cols = height / cellSize;
         const board: Grid = [];
         for (let y = 0; y < rows; y++) {
             board[y] = [];
             for (let x = 0; x < cols; x++) {
-                board[y][x] = Math.random() < 0.7 ? true : false;
+                board[y][x] = Math.random() > 0.7 ? true : false;
             }
         }
         return board;
     }
 
-    const [board, setBoard] = useState<Grid>(generateRandomBoard());
-    const [isRunning, setIsRunning] = useState(false);
-    const [generation, setGeneration] = useState(0);
-    const runningRef = useRef(isRunning);
+    const handleChildSize = () => {
+        const childSize = calculateChildSize(parentWidth, parentHeight, gapSize, rows, cols);
+        setChildSize(childSize);
+    };
 
-    runningRef.current = isRunning;
 
-    const countTheNeighbors = useCallback((board, row, col) => {
+    function calculateChildSize(
+        parentWidth: number,
+        parentHeight: number,
+        gapSize: number,
+        numRows: number,
+        numCols: number,
+    ) {
+        const pw = Math.floor(parentWidth);
+        const ph = Math.floor(parentHeight);
+        const childWidth = Math.floor((pw - (numCols - 1) * gapSize) / (numCols));
+        const childHeight = Math.floor((ph - (numRows - 1) * gapSize) / (numRows));
+        return Math.min(childWidth, childHeight);
+    }
+
+    const countTheNeighbors = useCallback((board: Grid, row: number, col: number) => {
         let count = 0;
         for (let i = -1; i <= 1; i++) {
             for (let j = -1; j <= 1; j++) {
@@ -109,6 +149,11 @@ export default function GamePage() {
         setTimeout(runTheGame, 100);
     }, [handleNextGeneration]);
 
+    useEffect (() => {
+        handleChildSize();
+        setBoard(generateRandomBoard());
+    }, [parentWidth, parentHeight, gapSize, rows, cols]);
+
     return (
         <Layout>
             <section className="container grid items-center gap-4 md:gap-6 pt-4 md:pt-6 pb-8 md:py-10">
@@ -130,50 +175,82 @@ export default function GamePage() {
                         </Button>
                     </div>
                 </div>
-                <div className="max-w-[90vw] flex items-center justify-center py-6 md:p-6 bg-pink-900">
+                <div
+                    ref={observe}
+                    className="h-[500px] max-w-[90vw] flex items-center justify-center px-2 py-2 lg:p-6 bg-pink-900"
+                >
+                    {board && (
+                        <div
+                            style={{
+                                display: 'grid',
+                                gridGap: `${gapSize}px`,
+                                gridTemplateColumns: `repeat(${board[0].length}, 1fr)`,
+                                gridTemplateRows: `repeat(${board.length}, 1fr)`,
+                            }}
+                        >
+                            {board.map((row, i) =>
+                                row.map((cell, j) =>
+                                    <div
+                                        key={`${i}-${j}`}
+                                        className="cell"
+                                        style={{
+                                            width: `${childSize}px`,
+                                            height: `${childSize}px`,
+                                            backgroundColor: cell ? '#be185d' : '#fce7f3',
+                                        }}
+                                    >
+                                    </div>
 
-                    <div
-                        className="board"
-                        style={{
-                            width: width,
-                            height: height,
-                            backgroundSize: `${cellSize}px ${cellSize}px`,
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            gap: `${gap}px`,
-                        }}
-                    >
-                        {board.map((row, i) =>
-                            row.map((cell, j) =>
-                                <div
-                                    key={`${i}-${j}`}
-                                    className="cell"
-                                    style={{
-                                        width: cellSize - gap,
-                                        height: cellSize - gap,
-                                        backgroundColor: cell ? '#be185d' : '#fce7f3',
-                                    }}
-                                >
-                                </div>
-
-                            ))}
-                    </div>
+                                ))}
+                        </div>
+                    )}
                 </div>
-                <div className="flex gap-4">
+
+                <div className="flex flex-col md:flex-row gap-4">
                     <div>
-                        <Label htmlFor="gap" className="text-lg font-semibold">Gap</Label>
+                        <Label htmlFor="shape" className="text-lg font-semibold">Board Shape</Label>
                         <div className="mt-1.5">
                             <Select
-                                value={gap.toString()}
+                                value={shape}
                                 onValueChange={(value) => {
-                                    setGap(parseInt(value));
+                                    handleClearClick();
+                                    setRows(value === 'square' ? SQUARE_ROWS : RECT_ROWS);
+                                    setCols(value === 'square' ? SQUARE_COLS : RECT_COLS);
+                                    setShape(value as BoardShape);
                                 }}
                             >
                                 <SelectTrigger className="w-[180px]">
                                     <SelectValue placeholder="Select Shape" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {gapOptions.map((item, idx) => (
+                                    {SHAPE_OPTIONS.map((item, idx) => (
+                                        <SelectItem
+                                            key={idx}
+                                            value={item}
+                                        >
+                                            {item.toString().charAt(0).toUpperCase() + item.toString().slice(1)}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    <div>
+                        <Label htmlFor="gap" className="text-lg font-semibold">Gap</Label>
+                        <div className="mt-1.5">
+                            <Select
+                                value={gapSize.toString()}
+                                onValueChange={(value) => {
+                                    handleClearClick();
+                                    setGapSize(parseInt(value));
+                                    handleChildSize();
+                                }}
+                            >
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Select Shape" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {GAP_OPTIONS.map((item, idx) => (
                                         <SelectItem
                                             key={idx}
                                             value={item.toString()}
@@ -187,6 +264,6 @@ export default function GamePage() {
                     </div>
                 </div>
             </section>
-        </Layout>
+        </Layout >
     );
 }

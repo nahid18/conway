@@ -49,6 +49,7 @@
     "next": "^13.1.6",
     "next-themes": "^0.2.1",
     "react": "^18.2.0",
+    "react-cool-dimensions": "^3.0.0",
     "react-dom": "^18.2.0",
     "sharp": "^0.31.3",
     "tailwind-merge": "^1.8.0",

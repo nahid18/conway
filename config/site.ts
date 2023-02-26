@@ -7,7 +7,6 @@ interface SiteConfig {
   links: {
     twitter: string
     github: string
-    docs: string
     repo: string
   }
 }
@@ -21,11 +20,14 @@ export const siteConfig: SiteConfig = {
       title: "Home",
       href: "/",
     },
+    {
+      title: "Game",
+      href: "/game",
+    }
   ],
   links: {
     twitter: "https://twitter.com/abdnahid_",
     github: "https://github.com/nahid18",
-    docs: "https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life",
-    repo: "https://github.com/nahid18/conway-ts",
+    repo: "https://github.com/nahid18/conway",
   },
 }
