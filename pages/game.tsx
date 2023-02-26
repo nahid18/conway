@@ -192,26 +192,29 @@ export default function GamePage() {
                                 gridGap: `${gapSize}px`,
                                 gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
                                 gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
-                                transition: 'all 0.3s ease-in',
+                                transition: 'all 0.5s ease',
                             }}
                         >
                             {board.map((row, i) =>
                                 row.map((cell, j) =>
-                                    <div
-                                        key={`${i}-${j}`}
-                                        className="cell cursor-pointer transition ease-in-out transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:transform-none duration-300"
-                                        style={{
-                                            width: `${childSize}px`,
-                                            height: `${childSize}px`,
-                                            backgroundColor: cell ? '#be185d' : '#fce7f3',
-                                        }}
-                                        onClick={() => {
-                                            if (!isRunning) {
-                                                toggleCell(i, j);
-                                            }
-                                        }}
-                                    >
-                                    </div>
+                                    {
+                                        return <div
+                                            key={`${i}-${j}`}
+                                            className="cell cursor-pointer hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:transform-none"
+                                            style={{
+                                                width: `${childSize}px`,
+                                                height: `${childSize}px`,
+                                                backgroundColor: cell ? '#be185d' : '#fce7f3',
+                                                transition: 'all 0.5s ease',
+                                            }}
+                                            onClick={() => {
+                                                if (!isRunning) {
+                                                    toggleCell(i, j);
+                                                }
+                                            } }
+                                        >
+                                        </div>;
+                                    }
 
                                 ))}
                         </div>
