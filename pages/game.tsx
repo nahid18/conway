@@ -183,8 +183,7 @@ export default function GamePage() {
                 </div>
                 <div
                     ref={observe}
-                    className="h-[45vh] md:h-[50vh] max-w-[90vw] flex items-center justify-center p-2 md:p-6
-                     bg-pink-900"
+                    className="h-[45vh] md:h-[50vh] max-w-[90vw] flex items-center justify-center p-2 md:p-6 bg-pink-900"
                 >
                     {board && (
                         <div
