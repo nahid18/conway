@@ -225,6 +225,7 @@ export default function GamePage() {
                             <Select
                                 value={shape}
                                 onValueChange={(value) => {
+                                    handleClearClick();
                                     setRows(value === 'square' ? SQUARE_ROWS : RECT_ROWS);
                                     setCols(value === 'square' ? SQUARE_COLS : RECT_COLS);
                                     setShape(value as BoardShape);
@@ -252,6 +253,7 @@ export default function GamePage() {
                             <Select
                                 value={gapSize.toString()}
                                 onValueChange={(value) => {
+                                    handleClearClick();
                                     setGapSize(parseInt(value));
                                 }}
                             >
