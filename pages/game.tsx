@@ -29,7 +29,7 @@ export default function GamePage() {
     const [rows, setRows] = useState(SQUARE_ROWS);
     const [cols, setCols] = useState(SQUARE_COLS);
 
-    const [shape, setShape] = useState<BoardShape>(SHAPE_OPTIONS[0] as BoardShape);
+    const [shape, setShape] = useState<BoardShape>(SHAPE_OPTIONS[0]);
     const [parentWidth, setParentWidth] = useState(0);
     const [parentHeight, setParentHeight] = useState(0);
 
