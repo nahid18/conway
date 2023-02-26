@@ -69,7 +69,6 @@ export default function GamePage() {
         setChildSize(childSize);
     };
 
-
     function calculateChildSize(
         parentWidth: number,
         parentHeight: number,
@@ -127,6 +126,13 @@ export default function GamePage() {
         setBoard(newBoard);
         setGeneration((prevGeneration) => prevGeneration + 1);
     }, [board]);
+
+
+    const toggleCell = (row: number, col: number) => {
+        const newBoard = Array.from(board);
+        newBoard[row][col] = !newBoard[row][col];
+        setBoard(newBoard);
+    }
 
     const handleRunClick = () => {
         setIsRunning(!isRunning);
@@ -197,6 +203,11 @@ export default function GamePage() {
                                             width: `${childSize}px`,
                                             height: `${childSize}px`,
                                             backgroundColor: cell ? '#be185d' : '#fce7f3',
+                                        }}
+                                        onClick={() => {
+                                            if (!isRunning) {
+                                                toggleCell(i, j);
+                                            }
                                         }}
                                     >
                                     </div>
