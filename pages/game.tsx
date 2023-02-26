@@ -158,7 +158,7 @@ export default function GamePage() {
     useEffect (() => {
         handleChildSize();
         setBoard(generateRandomBoard());
-    }, [parentWidth, parentHeight, gapSize, rows, cols]);
+    }, [parentWidth, parentHeight, shape, gapSize]);
 
     return (
         <Layout>
