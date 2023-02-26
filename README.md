@@ -8,3 +8,4 @@ A NextJS, Typescript, Radix-UI, and TailwindCSS implementation of Conway Game of
 - Select Board Shape
 - Select Gap Size
 - Toggle Cells
+- Dark Mode
