@@ -22,17 +22,17 @@ export default function GamePage() {
     const SQUARE_COLS = 20;
     const RECT_ROWS = 15;
     const RECT_COLS = 20;
-    const GAP_OPTIONS = Array.from({ length: 3 }, (_, i) => i + 1);
+    const GAP_SIZE = 1;
+    const GAP_OPTIONS = Array.from({ length: 4 }, (_, i) => i + 1);
     const SHAPE_OPTIONS = ["square", "rectangle"] as BoardShape[];
 
-    const [gapSize, setGapSize] = useState(2);
+    const [gapSize, setGapSize] = useState(GAP_SIZE);
     const [rows, setRows] = useState(SQUARE_ROWS);
     const [cols, setCols] = useState(SQUARE_COLS);
 
     const [shape, setShape] = useState<BoardShape>(SHAPE_OPTIONS[0]);
     const [parentWidth, setParentWidth] = useState(0);
     const [parentHeight, setParentHeight] = useState(0);
-
 
     const [childSize, setChildSize] = useState(0);
     const [board, setBoard] = useState<Grid>();
@@ -69,19 +69,19 @@ export default function GamePage() {
         setChildSize(childSize);
     };
 
-    function calculateChildSize(
+    const calculateChildSize = useCallback((
         parentWidth: number,
         parentHeight: number,
         gapSize: number,
         numRows: number,
         numCols: number,
-    ) {
+    ) => {
         const pw = Math.floor(parentWidth);
         const ph = Math.floor(parentHeight);
         const childWidth = Math.floor((pw - (numCols - 1) * gapSize) / (numCols));
         const childHeight = Math.floor((ph - (numRows - 1) * gapSize) / (numRows));
         return Math.min(childWidth, childHeight);
-    }
+    }, [parentWidth, parentHeight, gapSize, rows, cols]);
 
     const countTheNeighbors = useCallback((board: Grid, row: number, col: number) => {
         let count = 0;
@@ -155,7 +155,7 @@ export default function GamePage() {
         setTimeout(runTheGame, 100);
     }, [handleNextGeneration]);
 
-    useEffect (() => {
+    useEffect(() => {
         handleChildSize();
         setBoard(generateRandomBoard());
     }, [parentWidth, parentHeight, shape, gapSize]);
@@ -198,7 +198,7 @@ export default function GamePage() {
                                 row.map((cell, j) =>
                                     <div
                                         key={`${i}-${j}`}
-                                        className="cell"
+                                        className="cell transition ease-in-out transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:transform-none duration-300"
                                         style={{
                                             width: `${childSize}px`,
                                             height: `${childSize}px`,
