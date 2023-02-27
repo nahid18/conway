@@ -148,12 +148,18 @@ export default function GamePage() {
     useEffect(() => {
         setRows(shape === "square" ? SQUARE_ROWS : RECT_ROWS);
         setCols(shape === "square" ? SQUARE_COLS : RECT_COLS);
-    }, [shape, generation]);
+    }, [shape]);
 
+
+    useEffect(() => {
+        if (generation === 0) {
+            return;
+        }
+    }, [generation]);
 
     useInterval(() => {
         runTheGame(board);
-    }, 200);
+    }, isRunning ? 100 : null);
 
     return (
         <Layout>
