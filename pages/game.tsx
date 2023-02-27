@@ -10,6 +10,7 @@ import useDimensions from "react-cool-dimensions";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Layout } from "@/components/layout";
+import useInterval from "@/lib/useInterval";
 
 
 type Cell = true | false;
@@ -19,14 +20,14 @@ type BoardShape = "square" | "rectangle";
 
 export default function GamePage() {
     const neightborOffsets = [
-        [-1, -1], // top left
-        [-1, 0], // top
-        [-1, 1], // top right
-        [0, -1], // left
         [0, 1], // right
-        [1, -1], // bottom left
-        [1, 0], // bottom
-        [1, 1], // bottom right
+        [0, -1], // left
+        [1, -1], // top left
+        [-1, 1], // top right
+        [1, 1], // top
+        [-1, -1], // bottom
+        [1, 0], // bottom right
+        [-1, 0], // bottom left
     ];
 
     const SQUARE_ROWS = 20;
@@ -94,39 +95,10 @@ export default function GamePage() {
         return Math.min(childWidth, childHeight);
     }, [parentWidth, parentHeight, gapSize, rows, cols]);
 
-    const countTheNeighbors = useCallback((board: Grid, row: number, col: number) => {
-        let neighbors = 0;
-        neightborOffsets.forEach(([x, y]) => {
-            const newCol = col + x;
-            const newRow = row + y;
-            if (newCol >= 0 && newCol < cols && newRow >= 0 && newRow < rows) {
-                neighbors += board[newRow][newCol] ? 1 : 0;
-            }
-        });
-        return neighbors;
-    }, [board]);
-
-    const handleNextGeneration = useCallback(() => {
-        const newBoard = Array.from(board);
-        for (let i = 0; i < rows; i++) {
-            for (let j = 0; j < cols; j++) {
-                const neighbors = countTheNeighbors(board, i, j);
-                if (neighbors < 2 || neighbors > 3) {
-                    newBoard[i][j] = false;
-                } else if (board[i][j] === false && neighbors === 3) {
-                    newBoard[i][j] = true;
-                }
-            }
-        }
-        setBoard(newBoard);
-        setGeneration((prevGeneration) => prevGeneration + 1);
-    }, [board]);
-
-
     const handleRunClick = () => {
         setIsRunning(!isRunning);
         runningRef.current = true;
-        runTheGame();
+        runTheGame(board);
     }
 
     const handleClearClick = () => {
@@ -136,18 +108,41 @@ export default function GamePage() {
         setGeneration(0);
     }
 
-    const runTheGame = useCallback(() => {
+    const runTheGame = useCallback((grid: Grid) => {
         if (!runningRef.current) {
             return;
         }
-        handleNextGeneration();
-        setTimeout(runTheGame, 200);
-    }, [handleNextGeneration]);
+        const newBoard = grid.map((row) => [...row]);
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                let neighbors = 0;
+                neightborOffsets.forEach(([x, y]) => {
+                    const newCol = j + x;
+                    const newRow = i + y;
+                    if (newCol >= 0 && newCol < cols && newRow >= 0 && newRow < rows) {
+                        neighbors += grid[newRow][newCol] ? 1 : 0;
+                    }
+                });
+                if (neighbors < 2 || neighbors > 3) {
+                    newBoard[i][j] = false;
+                } else if (grid[i][j] === false && neighbors === 3) {
+                    newBoard[i][j] = true;
+                }
+            }
+        }
+        setBoard(newBoard);
+        setGeneration((prevGeneration) => prevGeneration + 1);
+    }, []);
 
     useEffect(() => {
         handleChildSize();
         setBoard(generateRandomBoard());
-    }, [parentWidth, parentHeight, shape, gapSize]);
+    }, [shape, gapSize]);
+
+    useInterval(() => {
+        runTheGame(board);
+    }, isRunning ? 300 : null);
+
 
     return (
         <Layout>
@@ -185,27 +180,26 @@ export default function GamePage() {
                             }}
                         >
                             {board.map((row, i) =>
-                                row.map((cell, j) =>
-                                    {
-                                        return <div
-                                            key={`${i}-${j}`}
-                                            className="cell cursor-pointer hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:transform-none"
-                                            style={{
-                                                width: `${childSize}px`,
-                                                height: `${childSize}px`,
-                                                backgroundColor: cell ? '#be185d' : '#fce7f3',
-                                                transition: 'all 0.5s ease',
-                                            }}
-                                            onClick={() => {
-                                                if (!isRunning) {
-                                                    let newBoard = [...board];
-                                                    newBoard[i][j] = board[i][j] ? false : true;
-                                                    setBoard(newBoard);
-                                                }
-                                            }}
-                                        >
-                                        </div>;
-                                    }
+                                row.map((cell, j) => {
+                                    return <div
+                                        key={`${i}-${j}`}
+                                        className="cell cursor-pointer hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:transform-none"
+                                        style={{
+                                            width: `${childSize}px`,
+                                            height: `${childSize}px`,
+                                            backgroundColor: cell ? '#be185d' : '#fce7f3',
+                                            transition: 'all 0.5s ease',
+                                        }}
+                                        onClick={() => {
+                                            if (!isRunning) {
+                                                let newBoard = [...board];
+                                                newBoard[i][j] = board[i][j] ? false : true;
+                                                setBoard(newBoard);
+                                            }
+                                        }}
+                                    >
+                                    </div>;
+                                }
 
                                 ))}
                         </div>
