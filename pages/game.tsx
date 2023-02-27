@@ -150,13 +150,6 @@ export default function GamePage() {
         setCols(shape === "square" ? SQUARE_COLS : RECT_COLS);
     }, [shape]);
 
-
-    useEffect(() => {
-        if (generation === 0) {
-            return;
-        }
-    }, [generation]);
-
     useEffect(() => {
         setBoard(generateRandomBoard(SQUARE_ROWS, SQUARE_COLS));
     }, [])
