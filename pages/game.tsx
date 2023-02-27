@@ -85,18 +85,17 @@ export default function GamePage() {
 
     const countTheNeighbors = useCallback((board: Grid, row: number, col: number) => {
         let count = 0;
-        for (let i = -1; i <= 1; i++) {
-            for (let j = -1; j <= 1; j++) {
+        for (let i = -1; i < 2; i++) {
+            for (let j = -1; j < 2; j++) {
                 if (i === 0 && j === 0) {
                     continue;
                 }
                 const r = row + i;
                 const c = col + j;
-                if (r < 0 || r >= board.length || c < 0 || c >= board[0].length) {
-                    continue;
-                }
-                if (board[r][c]) {
-                    count++;
+                if (r >= 0 && r < board.length && c >= 0 && c < board[0].length) {
+                    if (board[r][c]) {
+                        count++;
+                    }
                 }
             }
         }
@@ -109,16 +108,14 @@ export default function GamePage() {
             for (let j = 0; j < board[i].length; j++) {
                 const neighbors = countTheNeighbors(board, i, j);
                 if (board[i][j]) {
-                    if (neighbors < 2 || neighbors > 3) {
-                        newBoard[i][j] = false;
-                    } else {
+                    if (neighbors === 2 || neighbors === 3) {
                         newBoard[i][j] = true;
+                    } else {
+                        newBoard[i][j] = false;
                     }
                 } else {
-                    if (neighbors === 3) {
+                    if (!board[i][j] && neighbors === 3) {
                         newBoard[i][j] = true;
-                    } else {
-                        newBoard[i][j] = false;
                     }
                 }
             }
@@ -211,7 +208,7 @@ export default function GamePage() {
                                                 if (!isRunning) {
                                                     toggleCell(i, j);
                                                 }
-                                            } }
+                                            }}
                                         >
                                         </div>;
                                     }
