@@ -30,6 +30,17 @@ export default function GamePage() {
         [-1, 0], // bottom left
     ];
 
+    const generateEmptyBoard = (rowNum: number, colNum: number) => {
+        const board: Grid = [];
+        for (let y = 0; y < rowNum; y++) {
+            board[y] = [];
+            for (let x = 0; x < colNum; x++) {
+                board[y][x] = false;
+            }
+        }
+        return board;
+    }
+
     const generateRandomBoard = (rowNum: number, colNum: number) => {
         const board: Grid = [];
         for (let y = 0; y < rowNum; y++) {
@@ -99,10 +110,20 @@ export default function GamePage() {
         runningRef.current = true;
     }
 
-    const handleClearClick = () => {
+    const handleRandomize = () => {
         setIsRunning(false);
         runningRef.current = false;
         setBoard(generateRandomBoard(
+            shape === "square" ? SQUARE_ROWS : RECT_ROWS,
+            shape === "square" ? SQUARE_COLS : RECT_COLS,
+        ));
+        setGeneration(0);
+    }
+
+    const handleClear = () => {
+        setIsRunning(false);
+        runningRef.current = false;
+        setBoard(generateEmptyBoard(
             shape === "square" ? SQUARE_ROWS : RECT_ROWS,
             shape === "square" ? SQUARE_COLS : RECT_COLS,
         ));
@@ -118,10 +139,10 @@ export default function GamePage() {
             for (let j = 0; j < cols; j++) {
                 let neighbors = 0;
                 neightborOffsets.forEach(([x, y]) => {
-                    const newCol = j + x;
-                    const newRow = i + y;
-                    if (newCol >= 0 && newCol < cols && newRow >= 0 && newRow < rows) {
-                        neighbors += grid[newRow][newCol] ? 1 : 0;
+                    const newI = i+x;
+                    const newJ = j+y;
+                    if (newI >= 0 && newI < rows && newJ >= 0 && newJ < cols) {
+                        neighbors += grid[newI][newJ] ? 1 : 0;
                     }
                 });
                 if (neighbors < 2 || neighbors > 3) {
@@ -133,7 +154,7 @@ export default function GamePage() {
         }
         setBoard(newBoard);
         setGeneration((prevGeneration) => prevGeneration + 1);
-    }, [neightborOffsets, rows, cols]);
+    }, [rows, cols]);
 
     useEffect(() => {
         handleChildSize();
@@ -163,7 +184,10 @@ export default function GamePage() {
                         <Button variant="default" onClick={handleRunClick}>
                             {isRunning ? 'Pause' : 'Start'}
                         </Button>
-                        <Button variant="subtle" onClick={handleClearClick}>
+                        <Button variant="subtle" onClick={handleRandomize}>
+                            Randomize
+                        </Button>
+                        <Button variant="subtle" onClick={handleClear}>
                             Clear
                         </Button>
                     </div>
@@ -222,7 +246,7 @@ export default function GamePage() {
                                     setRows(newRow);
                                     setCols(newCol);
                                     setBoard(generateRandomBoard(newRow, newCol));
-                                    handleClearClick();
+                                    handleRandomize();
                                 }}
                             >
                                 <SelectTrigger className="w-[180px]">
@@ -247,7 +271,7 @@ export default function GamePage() {
                             <Select
                                 value={gapSize.toString()}
                                 onValueChange={(value) => {
-                                    handleClearClick();
+                                    handleRandomize();
                                     setGapSize(parseInt(value));
                                 }}
                             >
