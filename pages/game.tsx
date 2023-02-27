@@ -40,7 +40,7 @@ export default function GamePage() {
     const [parentHeight, setParentHeight] = useState(0);
 
     const [childSize, setChildSize] = useState(0);
-    const [board, setBoard] = useState<Grid>(generateRandomBoard(SQUARE_ROWS, SQUARE_COLS));
+    const [board, setBoard] = useState<Grid>();
     const [isRunning, setIsRunning] = useState(false);
     const [generation, setGeneration] = useState(0);
 
@@ -100,8 +100,6 @@ export default function GamePage() {
         setIsRunning(false);
         runningRef.current = false;
         const { rows, cols } = getNewRowsAndCols(shape);
-        setBoard(generateEmptyBoard(rows, cols));
-        setGeneration(0)
         setBoard(generateRandomBoard(rows, cols));
         setGeneration(0);
     }
@@ -144,7 +142,6 @@ export default function GamePage() {
     useEffect(() => {
         handleChildSize();
         const { rows, cols } = getNewRowsAndCols(shape);
-        setBoard(generateEmptyBoard(rows, cols))
         setBoard(generateRandomBoard(rows, cols));
     }, [parentWidth, parentHeight, shape, rows, gapSize]);
 
@@ -159,6 +156,10 @@ export default function GamePage() {
             return;
         }
     }, [generation]);
+
+    useEffect(() => {
+        setBoard(generateRandomBoard(SQUARE_ROWS, SQUARE_COLS));
+    }, [])
 
     useInterval(() => {
         runTheGame(board);

@@ -21,8 +21,11 @@ export const neightborOffsets = [
 
 export const generateEmptyBoard = (rowNum: number, colNum: number) => {
   const board: Grid = [];
-  for (let i = 0; i < rowNum; i++) {
-    board.push(Array.from(Array(colNum), () => false));
+  for (let y = 0; y < rowNum; y++) {
+    board[y] = [];
+    for (let x = 0; x < colNum; x++) {
+      board[y][x] = false;
+    }
   }
   return board;
 }
