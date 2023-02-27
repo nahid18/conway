@@ -58,7 +58,7 @@ export default function GamePage() {
     const [parentHeight, setParentHeight] = useState(0);
 
     const [childSize, setChildSize] = useState(0);
-    const [board, setBoard] = useState<Grid>(generateRandomBoard(20, SQUARE_COLS));
+    const [board, setBoard] = useState<Grid>(generateRandomBoard(SQUARE_ROWS, SQUARE_COLS));
     const [isRunning, setIsRunning] = useState(false);
     const [generation, setGeneration] = useState(0);
 
