@@ -30,6 +30,17 @@ export default function GamePage() {
         [-1, 0], // bottom left
     ];
 
+    const generateRandomBoard = (rowNum: number, colNum: number) => {
+        const board: Grid = [];
+        for (let y = 0; y < rowNum; y++) {
+            board[y] = [];
+            for (let x = 0; x < colNum; x++) {
+                board[y][x] = Math.random() > 0.7 ? true : false;
+            }
+        }
+        return board;
+    }
+
     const SQUARE_ROWS = 20;
     const SQUARE_COLS = 20;
     const RECT_ROWS = 15;
@@ -47,13 +58,12 @@ export default function GamePage() {
     const [parentHeight, setParentHeight] = useState(0);
 
     const [childSize, setChildSize] = useState(0);
-    const [board, setBoard] = useState<Grid>();
+    const [board, setBoard] = useState<Grid>(generateRandomBoard(20, SQUARE_COLS));
     const [isRunning, setIsRunning] = useState(false);
     const [generation, setGeneration] = useState(0);
 
     const runningRef = useRef(isRunning);
     runningRef.current = isRunning;
-
 
     const { observe } = useDimensions<HTMLDivElement>({
         onResize: ({ observe, unobserve, width, height }) => {
@@ -64,17 +74,6 @@ export default function GamePage() {
             observe();
         },
     });
-
-    const generateRandomBoard = () => {
-        const board: Grid = [];
-        for (let y = 0; y < rows; y++) {
-            board[y] = [];
-            for (let x = 0; x < cols; x++) {
-                board[y][x] = Math.random() > 0.7 ? true : false;
-            }
-        }
-        return board;
-    }
 
     const handleChildSize = () => {
         const childSize = calculateChildSize(parentWidth, parentHeight, gapSize, rows, cols);
@@ -98,13 +97,15 @@ export default function GamePage() {
     const handleRunClick = () => {
         setIsRunning(!isRunning);
         runningRef.current = true;
-        runTheGame(board);
     }
 
     const handleClearClick = () => {
         setIsRunning(false);
         runningRef.current = false;
-        setBoard(generateRandomBoard());
+        setBoard(generateRandomBoard(
+            shape === "square" ? SQUARE_ROWS : RECT_ROWS,
+            shape === "square" ? SQUARE_COLS : RECT_COLS,
+        ));
         setGeneration(0);
     }
 
@@ -132,17 +133,19 @@ export default function GamePage() {
         }
         setBoard(newBoard);
         setGeneration((prevGeneration) => prevGeneration + 1);
-    }, []);
+    }, [neightborOffsets, rows, cols]);
 
     useEffect(() => {
         handleChildSize();
-        setBoard(generateRandomBoard());
-    }, [shape, gapSize]);
+        setBoard(generateRandomBoard(
+            shape === "square" ? SQUARE_ROWS : RECT_ROWS,
+            shape === "square" ? SQUARE_COLS : RECT_COLS,
+        ));
+    }, [parentWidth, parentHeight, shape, rows, gapSize]);
 
     useInterval(() => {
         runTheGame(board);
-    }, isRunning ? 300 : null);
-
+    }, 200);
 
     return (
         <Layout>
@@ -213,10 +216,13 @@ export default function GamePage() {
                             <Select
                                 value={shape}
                                 onValueChange={(value) => {
-                                    handleClearClick();
-                                    setRows(value === 'square' ? SQUARE_ROWS : RECT_ROWS);
-                                    setCols(value === 'square' ? SQUARE_COLS : RECT_COLS);
+                                    const newRow = value === 'square' ? SQUARE_ROWS : RECT_ROWS;
+                                    const newCol = value === 'square' ? SQUARE_COLS : RECT_COLS;
                                     setShape(value as BoardShape);
+                                    setRows(newRow);
+                                    setCols(newCol);
+                                    setBoard(generateRandomBoard(newRow, newCol));
+                                    handleClearClick();
                                 }}
                             >
                                 <SelectTrigger className="w-[180px]">
