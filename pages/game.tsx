@@ -144,6 +144,7 @@ export default function GamePage() {
     useEffect(() => {
         handleChildSize();
         const { rows, cols } = getNewRowsAndCols(shape);
+        setBoard(generateEmptyBoard(rows, cols))
         setBoard(generateRandomBoard(rows, cols));
     }, [parentWidth, parentHeight, shape, rows, gapSize]);
 
