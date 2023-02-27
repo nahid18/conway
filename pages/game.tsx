@@ -100,6 +100,8 @@ export default function GamePage() {
         setIsRunning(false);
         runningRef.current = false;
         const { rows, cols } = getNewRowsAndCols(shape);
+        setBoard(generateEmptyBoard(rows, cols));
+        setGeneration(0)
         setBoard(generateRandomBoard(rows, cols));
         setGeneration(0);
     }
