@@ -5,6 +5,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { 
+    generateEmptyBoard, 
+    generateRandomBoard, 
+    Grid, 
+    neightborOffsets 
+} from "@/lib/utils";
+
 import { useState, useRef, useCallback, useEffect } from "react";
 import useDimensions from "react-cool-dimensions";
 import { Button } from "@/components/ui/button";
@@ -13,45 +20,9 @@ import { Layout } from "@/components/layout";
 import useInterval from "@/lib/useInterval";
 
 
-type Cell = true | false;
-type Grid = Cell[][];
 type BoardShape = "square" | "rectangle";
 
-
 export default function GamePage() {
-    const neightborOffsets = [
-        [0, 1], // right
-        [0, -1], // left
-        [1, -1], // top left
-        [-1, 1], // top right
-        [1, 1], // top
-        [-1, -1], // bottom
-        [1, 0], // bottom right
-        [-1, 0], // bottom left
-    ];
-
-    const generateEmptyBoard = (rowNum: number, colNum: number) => {
-        const board: Grid = [];
-        for (let y = 0; y < rowNum; y++) {
-            board[y] = [];
-            for (let x = 0; x < colNum; x++) {
-                board[y][x] = false;
-            }
-        }
-        return board;
-    }
-
-    const generateRandomBoard = (rowNum: number, colNum: number) => {
-        const board: Grid = [];
-        for (let y = 0; y < rowNum; y++) {
-            board[y] = [];
-            for (let x = 0; x < colNum; x++) {
-                board[y][x] = Math.random() > 0.7 ? true : false;
-            }
-        }
-        return board;
-    }
-
     const SQUARE_ROWS = 20;
     const SQUARE_COLS = 20;
     const RECT_ROWS = 15;
@@ -110,23 +81,34 @@ export default function GamePage() {
         runningRef.current = true;
     }
 
+    const getNewRowsAndCols = (shape: BoardShape) => {
+        switch (shape) {
+            case "square":
+                return {
+                    rows: SQUARE_ROWS,
+                    cols: SQUARE_COLS,
+                };
+            case "rectangle":
+                return {
+                    rows: RECT_ROWS,
+                    cols: RECT_COLS,
+                };
+        }
+    }
+
     const handleRandomize = () => {
         setIsRunning(false);
         runningRef.current = false;
-        setBoard(generateRandomBoard(
-            shape === "square" ? SQUARE_ROWS : RECT_ROWS,
-            shape === "square" ? SQUARE_COLS : RECT_COLS,
-        ));
+        const { rows, cols } = getNewRowsAndCols(shape);
+        setBoard(generateRandomBoard(rows, cols));
         setGeneration(0);
     }
 
     const handleClear = () => {
         setIsRunning(false);
         runningRef.current = false;
-        setBoard(generateEmptyBoard(
-            shape === "square" ? SQUARE_ROWS : RECT_ROWS,
-            shape === "square" ? SQUARE_COLS : RECT_COLS,
-        ));
+        const { rows, cols } = getNewRowsAndCols(shape);
+        setBoard(generateEmptyBoard(rows, cols));
         setGeneration(0);
     }
 
@@ -156,13 +138,18 @@ export default function GamePage() {
         setGeneration((prevGeneration) => prevGeneration + 1);
     }, [rows, cols]);
 
+
     useEffect(() => {
         handleChildSize();
-        setBoard(generateRandomBoard(
-            shape === "square" ? SQUARE_ROWS : RECT_ROWS,
-            shape === "square" ? SQUARE_COLS : RECT_COLS,
-        ));
+        const { rows, cols } = getNewRowsAndCols(shape);
+        setBoard(generateRandomBoard(rows, cols));
     }, [parentWidth, parentHeight, shape, rows, gapSize]);
+
+    useEffect(() => {
+        setRows(shape === "square" ? SQUARE_ROWS : RECT_ROWS);
+        setCols(shape === "square" ? SQUARE_COLS : RECT_COLS);
+    }, [shape, generation]);
+
 
     useInterval(() => {
         runTheGame(board);
@@ -240,12 +227,8 @@ export default function GamePage() {
                             <Select
                                 value={shape}
                                 onValueChange={(value) => {
-                                    const newRow = value === 'square' ? SQUARE_ROWS : RECT_ROWS;
-                                    const newCol = value === 'square' ? SQUARE_COLS : RECT_COLS;
                                     setShape(value as BoardShape);
-                                    setRows(newRow);
-                                    setCols(newCol);
-                                    setBoard(generateRandomBoard(newRow, newCol));
+                                    setBoard(generateRandomBoard(rows, cols));
                                     handleRandomize();
                                 }}
                             >
