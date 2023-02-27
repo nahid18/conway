@@ -16,7 +16,18 @@ type Cell = true | false;
 type Grid = Cell[][];
 type BoardShape = "square" | "rectangle";
 
+
 export default function GamePage() {
+    const neightborOffsets = [
+        [-1, -1], // top left
+        [-1, 0], // top
+        [-1, 1], // top right
+        [0, -1], // left
+        [0, 1], // right
+        [1, -1], // bottom left
+        [1, 0], // bottom
+        [1, 1], // bottom right
+    ];
 
     const SQUARE_ROWS = 20;
     const SQUARE_COLS = 20;
@@ -58,7 +69,7 @@ export default function GamePage() {
         for (let y = 0; y < rows; y++) {
             board[y] = [];
             for (let x = 0; x < cols; x++) {
-                board[y][x] = Math.random() > 0.7 ? true : false;
+                board[y][x] = Math.random() > 0.0 ? true : false;
             }
         }
         return board;
@@ -84,39 +95,26 @@ export default function GamePage() {
     }, [parentWidth, parentHeight, gapSize, rows, cols]);
 
     const countTheNeighbors = useCallback((board: Grid, row: number, col: number) => {
-        let count = 0;
-        for (let i = -1; i < 2; i++) {
-            for (let j = -1; j < 2; j++) {
-                if (i === 0 && j === 0) {
-                    continue;
-                }
-                const r = row + i;
-                const c = col + j;
-                if (r >= 0 && r < board.length && c >= 0 && c < board[0].length) {
-                    if (board[r][c]) {
-                        count++;
-                    }
-                }
+        let neighbors = 0;
+        neightborOffsets.forEach(([x, y]) => {
+            const newCol = col + x;
+            const newRow = row + y;
+            if (newCol >= 0 && newCol < cols && newRow >= 0 && newRow < rows) {
+                neighbors += board[newRow][newCol] ? 1 : 0;
             }
-        }
-        return count;
+        });
+        return neighbors;
     }, [board]);
 
     const handleNextGeneration = useCallback(() => {
         const newBoard = Array.from(board);
-        for (let i = 0; i < board.length; i++) {
-            for (let j = 0; j < board[i].length; j++) {
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
                 const neighbors = countTheNeighbors(board, i, j);
-                if (board[i][j]) {
-                    if (neighbors === 2 || neighbors === 3) {
-                        newBoard[i][j] = true;
-                    } else {
-                        newBoard[i][j] = false;
-                    }
-                } else {
-                    if (!board[i][j] && neighbors === 3) {
-                        newBoard[i][j] = true;
-                    }
+                if (neighbors < 2 || neighbors > 3) {
+                    newBoard[i][j] = false;
+                } else if (board[i][j] === false && neighbors === 3) {
+                    newBoard[i][j] = true;
                 }
             }
         }
@@ -124,12 +122,6 @@ export default function GamePage() {
         setGeneration((prevGeneration) => prevGeneration + 1);
     }, [board]);
 
-
-    const toggleCell = (row: number, col: number) => {
-        const newBoard = Array.from(board);
-        newBoard[row][col] = !newBoard[row][col];
-        setBoard(newBoard);
-    }
 
     const handleRunClick = () => {
         setIsRunning(!isRunning);
@@ -206,7 +198,9 @@ export default function GamePage() {
                                             }}
                                             onClick={() => {
                                                 if (!isRunning) {
-                                                    toggleCell(i, j);
+                                                    let newBoard = [...board];
+                                                    newBoard[i][j] = board[i][j] ? false : true;
+                                                    setBoard(newBoard);
                                                 }
                                             }}
                                         >
