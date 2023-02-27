@@ -69,7 +69,7 @@ export default function GamePage() {
         for (let y = 0; y < rows; y++) {
             board[y] = [];
             for (let x = 0; x < cols; x++) {
-                board[y][x] = Math.random() > 0.0 ? true : false;
+                board[y][x] = Math.random() > 0.7 ? true : false;
             }
         }
         return board;
@@ -141,7 +141,7 @@ export default function GamePage() {
             return;
         }
         handleNextGeneration();
-        setTimeout(runTheGame, 100);
+        setTimeout(runTheGame, 200);
     }, [handleNextGeneration]);
 
     useEffect(() => {
